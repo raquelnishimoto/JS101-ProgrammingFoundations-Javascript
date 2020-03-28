@@ -1,0 +1,30 @@
+{
+  "name": "js101_programming_foundations_with_javascript",
+  "version": "1.0.0",
+  "description": "Exercises and small programs from LaunchSchool JS101 Programming Foundations with JavaScript",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/raquelnishimoto/JS101-ProgrammingFoundations-Javascript.git"
+  },
+  "keywords": [
+    "Fundamentals",
+    "JavaScript",
+    "Programming",
+    "Learning"
+  ],
+  "author": "Raquel Nishimoto",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/raquelnishimoto/JS101-ProgrammingFoundations-Javascript/issues"
+  },
+  "homepage": "https://github.com/raquelnishimoto/JS101-ProgrammingFoundations-Javascript#readme",
+  "dependencies": {
+    "error-ex": "git+https://github.com/Qix-/node-error-ex.git",
+    "readline-sync": "^1.4.10"
+  },
+  "devDependencies": {}
+}
