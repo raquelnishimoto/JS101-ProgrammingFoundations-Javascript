@@ -34,13 +34,13 @@ function formatNumber(num) {
 }
 
 //Function calculates monthly payment whether or not interest is free
-let calculate = (loan, monthlyRate, loanInMonths) => {
+const calculate = (loan, monthlyRate, loanInMonths) => {
   if (monthlyRate === 0) {
     return loan / loanInMonths;
   } else {
     return parseFloat(loan) *
       (monthlyRate /
-      (1 - Math.pow((1 + monthlyRate), (-parseFloat(loanInMonths)))));
+        (1 - Math.pow((1 + monthlyRate), (-parseFloat(loanInMonths)))));
   }
 };
 
@@ -48,33 +48,40 @@ function prompt(message) {
   console.log(`=> ${message}`);
 }
 
+/*
+* This function prompts user to provide input until
+* input is a valid number. Once number is valid it returns value to its caller.
+*/
+function getUserInput(userInput) {
+  prompt(MESSAGES[`${userInput}`]);
+  let input = formatNumber(readline.question());
+
+  if (userInput === "year_percentage_rate") {
+    while (invalidNumber(input)) {
+      prompt(MESSAGES.invalid_number);
+      input = formatNumber(readline.question());
+    }
+  } else {
+    while (invalidNumber(input) || Number(input) === 0) {
+      prompt(MESSAGES.positive_number);
+      input = formatNumber(readline.question());
+    }
+  }
+  return input;
+}
+
+function displayPaymentInfo(payment, loan, interest, cost) {
+  prompt(`Your monthly mortgage repayments is $${payment.toFixed(2)}`);
+  prompt(`Loan amount: $${loan}\nTotal Interest: $${interest.toFixed(2)}\nTotal Cost: $${cost.toFixed(2)}`);
+}
+
 console.log(MESSAGES.welcome_message);
 
 while (true) {
-  console.log(MESSAGES.intro);
-  prompt(MESSAGES.enter_loan_amount);
-  let loanAtm = formatNumber(readline.question());
+  let loanAtm = getUserInput("loan_amount");
+  let annualPercentRate = getUserInput("year_percentage_rate");
+  let loanLenInMonths = getUserInput("loan_length_in_months");
 
-  while (invalidNumber(loanAtm)) {
-    prompt(MESSAGES.invalid_number);
-    loanAtm = formatNumber(readline.question());
-  }
-
-  prompt(MESSAGES.enter_year_percentage_rate);
-  let annualPercentRate = readline.question();
-
-  while (invalidNumber(annualPercentRate)) {
-    prompt(MESSAGES.invalid_number);
-    annualPercentRate = readline.question();
-  }
-
-  prompt(MESSAGES.enter_loan_length_in_months);
-  let loanLenInMonths = readline.question();
-
-  while (invalidNumber(loanLenInMonths)) {
-    prompt(MESSAGES.invalid_number);
-    loanLenInMonths = readline.question();
-  }
   //Coarce loan amount from typeof String to Number
   loanAtm = Number(loanAtm);
   let monthlyPercentRate = parseFloat(((annualPercentRate / 100) / 12));
@@ -83,17 +90,19 @@ while (true) {
   let totalCost = monthlyPayment * loanLenInMonths;
   let totalInterest = totalCost - loanAtm;
 
-  prompt(`Your monthly mortgage repayments is $${monthlyPayment.toFixed(2)}`);
-  prompt(`Amount amount: $${loanAtm}\nTotal Interest: $${totalInterest.toFixed(2)}\nTotal Cost: $${totalCost.toFixed(2)}`);
+  displayPaymentInfo(monthlyPayment, loanAtm, totalInterest, totalCost);
 
   //Promt user to continue or exit program
   prompt(MESSAGES.continue_program_prompt);
-  let exitProgram = readline.question();
+  let exitProgram = readline.question().toLowerCase();
 
-  //Any value that is not y, Y, Yes, YES breaks the loop (enter key equates '')
-  if (exitProgram === '' || exitProgram[0].toLowerCase() !== 'y') {
-    break;
+  //only allow 'y' and 'n' as valid inputs
+  while (exitProgram !== 'n' && exitProgram !== 'y') {
+    prompt(MESSAGES.valid_exit);
+    exitProgram = readline.question().toLowerCase();
   }
+  if (exitProgram === 'n') break;
+  console.clear();
 }
 
 prompt(MESSAGES.exit_message);

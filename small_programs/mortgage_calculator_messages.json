@@ -1,10 +1,12 @@
 {
   "intro": "-------------Calculate your mortgage monthly payments-------------",
   "welcome_message": "Welcome to Loan Calculator!",
-  "enter_loan_amount": "Enter the Loan Amount: ",
-  "enter_year_percentage_rate": "Enter the Annual Percentage Rate (APR)?\nExample: 5 for 5% or 2.5 for 2.5%",
-  "enter_loan_length_in_months": "Enter the Loan Length (in months): ",
+  "loan_amount": "Enter the Loan Amount: ",
+  "year_percentage_rate": "Enter the Annual Percentage Rate (APR)?\nExample: 5 for 5% or 2.5 for 2.5%",
+  "loan_length_in_months": "Enter the Loan Length (in months): ",
   "invalid_number": "Looks like this is not a valid number. Enter a valid number: ",
-  "continue_program_prompt": "Do you want to perform another calculation?\nPress 'y' to continue or any other key to exit.",
+  "positive_number": "Enter a valid positive number: ",
+  "continue_program_prompt": "Do you want to perform another calculation?\nEnter 'y' to continue or 'n' to exit calculator.",
+  "valid_exit": "Please, enter 'y' to continue or 'n' to exit calculator.",
   "exit_message": "Thank you for using Calculator! See you next time."
 }
