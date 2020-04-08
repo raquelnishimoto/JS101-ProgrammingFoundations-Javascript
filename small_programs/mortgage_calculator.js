@@ -10,7 +10,7 @@
 */
 
 const readline = require('readline-sync');
-const MESSAGES = require('./mortgage_calculator_messages.json');
+const MESSAGES = require('./resources/mortgage_calculator_messages.json');
 
 /*
 * Validate if input is a valid number.

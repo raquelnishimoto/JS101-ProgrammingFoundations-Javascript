@@ -1,0 +1,7 @@
+{
+"intro": "Game starts! The best of 5 matches.",
+"invalidInput": "Please, enter a valid option.",
+"retryGame": "Do you want to play again? (y/n)",
+"gameOver": "Game over! See you next time.",
+"lineDivisor": "-------------------------------------"
+}

@@ -49,7 +49,7 @@ input of numbers should be converted from string to numbers (parseFloat)
 - based on the chosen operation call the coresponding function
 - return the result in float points (do not exlude decimals)
 */
-const MESSAGES = require('./calculator_messages.json');
+const MESSAGES = require('./resources/calculator_messages.json');
 const readline = require('readline-sync');
 const LANGUAGE = 'pt';
 
