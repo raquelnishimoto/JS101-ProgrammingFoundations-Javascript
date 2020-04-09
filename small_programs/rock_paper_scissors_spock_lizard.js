@@ -1,24 +1,19 @@
 const readline = require('readline-sync');
 const MESSAGES = require('./resources/rpssl_messages.json');
-const VALID_CHOICES = { 1: 'rock', 2: 'paper', 3: 'scissors', 4: 'spock', 5: 'lizard' };
-const VALID_NUMBERS = Object.keys(VALID_CHOICES);
+const VALID_CHOICES = { r: 'rock', p: 'paper', ss: 'scissors', sk: 'spock', l: 'lizard' };
+const VALID_ENTRIES = Object.keys(VALID_CHOICES);
 const VALID_VALUES = Object.values(VALID_CHOICES);
 const WINNER_OPTIONS = {
   paper: ['rock', 'spock'], scissors: ['paper', 'lizard'], rock: ['scissors', 'lizard'],
   spock: ['scissors', 'rock'], lizard: ['spock', 'paper']
 };
 const MAX_POINTS = 5;
-let answer = '';
 
 function initialise() {
-  let gameScore = {};
-  gameScore['matchCount'] = 1;
-  gameScore['playerScore'] = 0;
-  gameScore['computerScore'] = 0;
-  return gameScore;
+  return { matchCount: 1, playerScore: 0, computerScore: 0 };
 }
 
-function displayWinner(player, computer) {
+function matchResult(player, computer) {
   if (WINNER_OPTIONS[player].includes(computer)) {
     return "Player wins!";
   } else if (WINNER_OPTIONS[computer].includes(player)) {
@@ -28,7 +23,7 @@ function displayWinner(player, computer) {
   }
 }
 
-function displayOptions(choices) {
+function options(choices) {
   let options = [];
   for (const num in choices) {
     options.push(`${num} for ${choices[num]}`);
@@ -36,11 +31,11 @@ function displayOptions(choices) {
   return options.join(', ');
 }
 
-function displayScore(game) {
+function dashboard(game) {
   return `MATCH ${game['matchCount']}: You ${game['playerScore']} vs. Computer ${game['computerScore']}.`;
 }
 
-function displayFinalResults(total) {
+function finalResults(total) {
   let result = [`Total game score: You ${total['playerScore']} vs. Computer ${total['computerScore']}.`];
   if (total['playerScore'] >= MAX_POINTS) {
     result.unshift("Player wins the game!");
@@ -64,38 +59,40 @@ function prompt(message) {
   console.log(`=> ${message}`);
 }
 
+let answer = '';
+
 do {
   let gameScore = initialise();
   console.clear();
   prompt(MESSAGES.intro);
 
   do {
-    prompt(displayScore(gameScore));
+    prompt(dashboard(gameScore));
 
     prompt(`Choose one option: ${VALID_VALUES.join(', ')}.`);
-    prompt(`Enter ${displayOptions(VALID_CHOICES)}.`);
+    prompt(`Enter ${options(VALID_CHOICES)}.`);
     let playerChoice = readline.question().toLowerCase();
 
-    while (!VALID_NUMBERS.includes(playerChoice)) {
+    while (!VALID_ENTRIES.includes(playerChoice)) {
       prompt(MESSAGES.invalidInput);
       playerChoice = readline.question().toLowerCase();
     }
 
-    let randomNum = Math.ceil(Math.random() * (VALID_NUMBERS.length));
-    let computerChoice = VALID_CHOICES[randomNum.toString()];
+    let randomNum = Math.round(Math.random() * (VALID_ENTRIES.length - 1));
+    let computerChoice = Object.entries(VALID_CHOICES)[randomNum][1];
     playerChoice = VALID_CHOICES[playerChoice];
 
     console.clear();
 
     prompt(`You chose ${playerChoice}, computer chose ${computerChoice}.`);
-    prompt(displayWinner(playerChoice, computerChoice));
+    prompt(matchResult(playerChoice, computerChoice));
 
     console.log(MESSAGES.lineDivisor);
 
-    calculateScore(displayWinner(playerChoice, computerChoice), gameScore);
+    calculateScore(matchResult(playerChoice, computerChoice), gameScore);
   } while (gameScore['playerScore'] < MAX_POINTS && gameScore['computerScore'] < MAX_POINTS);
 
-  prompt(displayFinalResults(gameScore));
+  prompt(finalResults(gameScore));
   prompt(MESSAGES.retryGame);
   answer = readline.question().toLowerCase();
 
