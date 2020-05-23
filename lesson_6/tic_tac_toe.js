@@ -49,7 +49,7 @@ function prompt(message) {
 }
 
 function promptToContinue() {
-  prompt("Press any key to continue");
+  prompt("Press the 'Enter' key to continue.");
   readLine.question();
 }
 
@@ -155,6 +155,13 @@ function squareIsAtRisk(board, player, squares) {
   return risk;
 }
 
+function atRiskAndAvailable(board, player, squares, idx) {
+  return (
+    squareIsAtRisk(board, player, squares) &&
+    squareIsAvailable(board, squares[idx])
+  );
+}
+
 function findAtRiskSquare(board, player) {
   let squareAtRisk;
 
@@ -163,10 +170,7 @@ function findAtRiskSquare(board, player) {
     let squares = [sq1, sq2, sq3];
 
     for (let sq = 0; sq < squares.length; sq++) {
-
-      if (
-        squareIsAtRisk(board, player, squares) &&
-        squareIsAvailable(board, squares[sq])) {
+      if (atRiskAndAvailable(board, player, squares, sq)) {
         squareAtRisk = squares[sq];
         break;
       }
@@ -235,20 +239,24 @@ function displayGameScore(score) {
 
 while (true) {
   let score = { Player: 0, Computer: 0 };
+  console.clear();
+  prompt(`Welcome to TIC TAC TOE! Player has to score ${POINTS_TO_WIN_GAME} to win the game.`);
 
   while (!gameWinner(score)) {
     let board = initialiseBoard();
     let currentPlayer = WHO_GOES_FIRST_FLAG;
 
     if (currentPlayer === 'choose') {
+      prompt("Select who plays first (p player, c for computer)");
+      currentPlayer = readLine.question().trim();
+
       while (!Object.keys(VALID_OPTION).includes(currentPlayer)) {
-        prompt("Select who playes first (p player, c for computer)");
+        prompt("Invalid answer. Please, enter 'p' player or 'c' for computer.");
         currentPlayer = readLine.question().trim();
       }
       currentPlayer = VALID_OPTION[currentPlayer];
     }
 
-    prompt(`Welcome to TIC TAC TOE!`);
     prompt(`${capitalise(currentPlayer)} goes first.`);
     promptToContinue();
 
