@@ -23,7 +23,7 @@ function initialiseScores() {
 }
 
 function prompt(message) {
-  return console.log(`=> ${message}`);
+  return console.log(`\n=> ${message}\n`);
 }
 
 function joinAnd(cards, delimiter = ', ', word = 'and') {
@@ -74,13 +74,13 @@ function displayCards(dealer, player, maskCard = true) {
 
   console.log('*************************************');
   console.log(`Dealer has: ${joinAnd(dealerCards)}.`);
-  console.log(`You have: ${joinAnd(playerCards)}, for a total of ${total(player)}.`);
+  console.log(`You have: ${joinAnd(playerCards)}, for a total of ${getTotal(player)}.`);
   console.log('*************************************');
 }
 
 function displayTotalAndCardsInHand(player, cards) {
   prompt(`${player} cards are now: ${hand(cards)}.`);
-  prompt(`${player} total is now: ${total(cards)}.`);
+  prompt(`${player} total is now: ${getTotal(cards)}.`);
 }
 
 function hand(player) {
@@ -94,7 +94,7 @@ function displayMatchResult(dealer, player) {
   console.log(MESSAGES.DIVISOR);
 }
 
-function total(cards) {
+function getTotal(cards) {
   let values = cards.map(value => value[1]);
 
   let sum = values.reduce((acc, value) => {
@@ -116,11 +116,11 @@ function total(cards) {
 }
 
 function busted(cards) {
-  return total(cards) > MAX_CARD_VALUE;
+  return getTotal(cards) > MAX_CARD_VALUE;
 }
 
 function dealerHits(cards) {
-  return total(cards) < DEALER_MAX_STAY_VALUE;
+  return getTotal(cards) < DEALER_MAX_STAY_VALUE;
 }
 
 function playerHits(deck, playerCards) {
@@ -157,7 +157,7 @@ function winner(dealerTotal, playerTotal) {
   return null;
 }
 
-function gameWinner(score) {
+function determineGameWinner(score) {
   for (let player in score) {
     if (score[player] >= POINTS_TO_WIN_GAME) return player;
   }
@@ -165,12 +165,12 @@ function gameWinner(score) {
 }
 
 function displayGameWinner(score) {
-  console.log(`*** GAME WINNER: ${capitalise(gameWinner(score))} ***`);
+  console.log(`*** GAME WINNER: ${capitalise(determineGameWinner(score))} ***`);
 }
 
 function displayGameScore(score) {
   console.log(`GAME TOTAL SCORE => You: ${score['player']} vs. Dealer ${score['dealer']}`);
-  if (gameWinner(score)) {
+  if (determineGameWinner(score)) {
     displayGameWinner(score);
   }
 }
@@ -200,6 +200,44 @@ function promptToContinue() {
   readLine.prompt();
   console.clear();
 }
+
+function gameNotWon(playersScore) {
+  return !determineGameWinner(playersScore);
+}
+
+function updateScore(scores, dealerTotal, playerTotal) {
+  scores[winner(dealerTotal, playerTotal)] += 1;
+}
+
+function displayBusted(message) {
+  prompt(message);
+  promptToContinue();
+}
+
+function moveToHit(player, deckCards, cardsInHand, message) {
+  playerHits(deckCards, cardsInHand);
+  prompt(message);
+  displayTotalAndCardsInHand(player, cardsInHand);
+}
+
+function moveToBusted(score, dealerTotal, playerTotal, message) {
+  updateScore(score, dealerTotal, playerTotal);
+  displayBusted(message);
+}
+
+function askForPlayerDecision() {
+  prompt(MESSAGES.HIT_OR_STAY);
+
+  let answer = readLine.question().trim().toLowerCase();
+
+  while (!isValid(answer)) {
+
+    prompt(MESSAGES.INVALID_ANSWER);
+    answer = readLine.question().trim().toLowerCase();
+  }
+  return answer;
+}
+
 /*
  TWENTY-ONE GAME
 */
@@ -211,44 +249,35 @@ while (true) {
   playersScore = initialiseScores();
   prompt(MESSAGES.WELCOME);
 
-  while (!gameWinner(playersScore)) {
+  while (gameNotWon(playersScore)) {
     displayGameScore(playersScore);
 
     let deckCards = initialiseDeck();
     let dealerCards = dealCards(deckCards, 2);
     let playerCards = dealCards(deckCards, 2);
-    let playerTotal = total(playerCards);
-    let dealerTotal = total(dealerCards);
+    let playerTotal = getTotal(playerCards);
+    let dealerTotal = getTotal(dealerCards);
+    let message;
 
     displayCards(dealerCards, playerCards);
 
     while (true) {
 
-      prompt(MESSAGES.HIT_OR_STAY);
-
-      let answer = readLine.question().trim().toLowerCase();
-
-      while (!isValid(answer)) {
-
-        prompt(MESSAGES.INVALID_ANSWER);
-        answer = readLine.question().trim().toLowerCase();
-      }
+      let answer = askForPlayerDecision();
 
       if (answer === HIT) {
         console.clear();
-        playerHits(deckCards, playerCards);
-        prompt(MESSAGES.YOU_HIT);
-        displayTotalAndCardsInHand('Your', playerCards);
-        playerTotal = total(playerCards);
+        moveToHit('Your', deckCards, playerCards, MESSAGES.YOU_HIT);
       }
 
       if (answer === STAY || busted(playerCards)) break;
     }
 
+    playerTotal = getTotal(playerCards);
+
     if (busted(playerCards)) {
-      prompt(MESSAGES.YOU_BUSTED);
-      playersScore[winner(dealerTotal, playerTotal)] += 1;
-      promptToContinue();
+      message = MESSAGES.YOU_BUSTED;
+      moveToBusted(playersScore, dealerTotal, playerTotal, message);
       continue;
     } else {
       console.clear();
@@ -260,28 +289,26 @@ while (true) {
 
     while (dealerHits(dealerCards)) {
       promptToContinue();
-      prompt(MESSAGES.DEALER_HITS);
-      playerHits(deckCards, dealerCards);
-      displayTotalAndCardsInHand('Dealer', dealerCards);
-      dealerTotal = total(dealerCards);
+      moveToHit('Dealer', deckCards, dealerCards, MESSAGES.DEALER_HITS);
+      dealerTotal = getTotal(dealerCards);
     }
 
     if (busted(dealerCards)) {
-      prompt(MESSAGES.DEALER_BUSTED);
-      playersScore[winner(dealerTotal, playerTotal)] += 1;
-      promptToContinue();
+      message = MESSAGES.DEALER_BUSTED;
+      moveToBusted(playersScore, dealerTotal, playerTotal, message);
       continue;
     } else {
       prompt(`Dealer stayed at ${dealerTotal}!`);
     }
+
     if (winner(dealerTotal, playerTotal)) {
-      playersScore[winner(dealerTotal, playerTotal)] += 1;
+      updateScore(playersScore, dealerTotal, playerTotal);
     }
 
     displayMatchResult(dealerTotal, playerTotal);
     promptToContinue();
 
-    if (gameWinner(playersScore)) break;
+    if (determineGameWinner(playersScore)) break;
   }
 
   displayGameScore(playersScore);
